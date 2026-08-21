@@ -1,10 +1,9 @@
 public class Duke {
     public static void main(String[] args) {
-        String banner = " ____        _        \n"
-                + "|  _ \\ _   _| | _____ \n"
-                + "| | | | | | | |/ / _ \\\n"
-                + "| |_| | |_| |   <  __/\n"
-                + "|____/ \\__,_|_|\\_\\___|\n";
+        String banner = " _________________________________________________\n"
+                + "|                                                 |\n"
+                + "|           Hello! I am Arav (II).                |\n"
+                + "|_________________________________________________|\n";
         System.out.println(banner);
     }
 }
