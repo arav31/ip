@@ -1,4 +1,4 @@
-public class Duke {
+public class AravII {
     public static void main(String[] args) {
         String banner = "____________________________________________________________\n"
                 + "     _    ____      _       __      __\n"
