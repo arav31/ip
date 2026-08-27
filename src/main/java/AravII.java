@@ -96,6 +96,10 @@ public class AravII {
                     getTask(tasks, input.substring(5)).completed = true;
                 } else if (input.startsWith("unmark ")) {
                     getTask(tasks, input.substring(7)).completed = false;
+                } else if (input.startsWith("delete ")) {
+                    Task deletedTask = getTask(tasks, input.substring(7));
+                    tasks.remove(deletedTask);
+                    System.out.println("Deleted: " + deletedTask);
                 } else {
                     throw new IllegalArgumentException("I don't recognise that command.");
                 }
