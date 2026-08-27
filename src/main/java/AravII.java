@@ -25,6 +25,27 @@ public class AravII {
         }
     }
 
+    /** Returns the task selected by a one-based task number. */
+    private static Task getTask(List<Task> tasks, String taskNumber) {
+        try {
+            int index = Integer.parseInt(taskNumber) - 1;
+            if (index < 0 || index >= tasks.size()) {
+                throw new IllegalArgumentException("That task number does not exist.");
+            }
+            return tasks.get(index);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("Please provide a valid task number.");
+        }
+    }
+
+    /** Rejects an empty task description. */
+    private static String requireDescription(String description) {
+        if (description.isBlank()) {
+            throw new IllegalArgumentException("The task description cannot be empty.");
+        }
+        return description;
+    }
+
     public static void main(String[] args) {
         String banner = "____________________________________________________________\n"
                 + "     _    ____      _       __      __\n"
@@ -42,34 +63,44 @@ public class AravII {
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String input = scanner.nextLine();
-            if (input.equals("bye")) {
-                break;
-            } else if (input.equals("list")) {
-                for (int i = 0; i < tasks.size(); i++) {
-                    System.out.println((i + 1) + ". " + tasks.get(i));
+            try {
+                if (input.equals("bye")) {
+                    break;
+                } else if (input.equals("list")) {
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println((i + 1) + ". " + tasks.get(i));
+                    }
+                } else if (input.startsWith("todo ")) {
+                    tasks.add(new Task("T", requireDescription(input.substring(5)), ""));
+                } else if (input.startsWith("deadline ")) {
+                    int byIndex = input.indexOf(" /by ");
+                    if (byIndex < 0) {
+                        throw new IllegalArgumentException("A deadline must include /by followed by a date.");
+                    }
+                    String description = requireDescription(input.substring(9, byIndex));
+                    String date = requireDescription(input.substring(byIndex + 5));
+                    tasks.add(new Task("D", description, "(by: " + date + ")"));
+                } else if (input.startsWith("event ")) {
+                    int fromIndex = input.indexOf(" /from ");
+                    int toIndex = input.indexOf(" /to ");
+                    if (fromIndex < 0 || toIndex < 0 || toIndex < fromIndex) {
+                        throw new IllegalArgumentException(
+                                "An event must include /from and /to followed by times.");
+                    }
+                    String description = requireDescription(input.substring(6, fromIndex));
+                    String from = requireDescription(input.substring(fromIndex + 7, toIndex));
+                    String to = requireDescription(input.substring(toIndex + 5));
+                    tasks.add(new Task("E", description,
+                            "(from: " + from + " to: " + to + ")"));
+                } else if (input.startsWith("mark ")) {
+                    getTask(tasks, input.substring(5)).completed = true;
+                } else if (input.startsWith("unmark ")) {
+                    getTask(tasks, input.substring(7)).completed = false;
+                } else {
+                    throw new IllegalArgumentException("I don't recognise that command.");
                 }
-            } else if (input.startsWith("todo ")) {
-                tasks.add(new Task("T", input.substring(5), ""));
-            } else if (input.startsWith("deadline ")) {
-                int byIndex = input.indexOf(" /by ");
-                String description = input.substring(9, byIndex);
-                String date = input.substring(byIndex + 5);
-                tasks.add(new Task("D", description, "(by: " + date + ")"));
-            } else if (input.startsWith("event ")) {
-                int fromIndex = input.indexOf(" /from ");
-                int toIndex = input.indexOf(" /to ");
-                String description = input.substring(6, fromIndex);
-                String from = input.substring(fromIndex + 7, toIndex);
-                String to = input.substring(toIndex + 5);
-                tasks.add(new Task("E", description, "(from: " + from + " to: " + to + ")"));
-            } else if (input.startsWith("mark ")) {
-                int taskIndex = Integer.parseInt(input.substring(5)) - 1;
-                tasks.get(taskIndex).completed = true;
-            } else if (input.startsWith("unmark ")) {
-                int taskIndex = Integer.parseInt(input.substring(7)) - 1;
-                tasks.get(taskIndex).completed = false;
-            } else {
-                System.out.println(input);
+            } catch (IllegalArgumentException exception) {
+                System.out.println("Error: " + exception.getMessage());
             }
         }
 
