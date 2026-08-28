@@ -3,14 +3,27 @@ import java.util.List;
 import java.util.Scanner;
 
 public class AravII {
+    /** Identifies the supported task categories and their display symbols. */
+    private enum TaskType {
+        TODO("T"),
+        DEADLINE("D"),
+        EVENT("E");
+
+        private final String symbol;
+
+        TaskType(String symbol) {
+            this.symbol = symbol;
+        }
+    }
+
     /** Represents a task and its optional deadline or event details. */
     private static class Task {
-        private final String type;
+        private final TaskType type;
         private final String description;
         private final String details;
         private boolean completed;
 
-        Task(String type, String description, String details) {
+        Task(TaskType type, String description, String details) {
             this.type = type;
             this.description = description;
             this.details = details;
@@ -21,7 +34,7 @@ public class AravII {
         public String toString() {
             String status = completed ? "[X]" : "[ ]";
             String taskDetails = details.isEmpty() ? "" : " " + details;
-            return "[" + type + "] " + status + " " + description + taskDetails;
+            return "[" + type.symbol + "] " + status + " " + description + taskDetails;
         }
     }
 
@@ -71,7 +84,7 @@ public class AravII {
                         System.out.println((i + 1) + ". " + tasks.get(i));
                     }
                 } else if (input.startsWith("todo ")) {
-                    tasks.add(new Task("T", requireDescription(input.substring(5)), ""));
+                    tasks.add(new Task(TaskType.TODO, requireDescription(input.substring(5)), ""));
                 } else if (input.startsWith("deadline ")) {
                     int byIndex = input.indexOf(" /by ");
                     if (byIndex < 0) {
@@ -79,7 +92,7 @@ public class AravII {
                     }
                     String description = requireDescription(input.substring(9, byIndex));
                     String date = requireDescription(input.substring(byIndex + 5));
-                    tasks.add(new Task("D", description, "(by: " + date + ")"));
+                    tasks.add(new Task(TaskType.DEADLINE, description, "(by: " + date + ")"));
                 } else if (input.startsWith("event ")) {
                     int fromIndex = input.indexOf(" /from ");
                     int toIndex = input.indexOf(" /to ");
@@ -90,7 +103,7 @@ public class AravII {
                     String description = requireDescription(input.substring(6, fromIndex));
                     String from = requireDescription(input.substring(fromIndex + 7, toIndex));
                     String to = requireDescription(input.substring(toIndex + 5));
-                    tasks.add(new Task("E", description,
+                    tasks.add(new Task(TaskType.EVENT, description,
                             "(from: " + from + " to: " + to + ")"));
                 } else if (input.startsWith("mark ")) {
                     getTask(tasks, input.substring(5)).completed = true;
