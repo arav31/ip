@@ -23,7 +23,7 @@ public class AravII {
         return description;
     }
 
-    /** Validates and normalises a deadline date in YYYY-MM-DD format. */
+    /** Validates and normalizes a deadline date in YYYY-MM-DD format. */
     private static String parseDate(String date) {
         try {
             return LocalDate.parse(date.trim(), DATE_FORMAT).format(DATE_FORMAT);
@@ -32,7 +32,7 @@ public class AravII {
         }
     }
 
-    /** Validates and normalises an event date and time in YYYY-MM-DD HH:MM format. */
+    /** Validates and normalizes an event date and time in YYYY-MM-DD HH:MM format. */
     private static String parseDateTime(String dateTime) {
         try {
             return LocalDateTime.parse(dateTime.trim(), DATE_TIME_FORMAT).format(DATE_TIME_FORMAT);

@@ -30,7 +30,7 @@ public class Task {
         completed = false;
     }
 
-    /** Serialises this task for storage in the save file. */
+    /** Serializes this task for storage in the save file. */
     public String serialize() {
         return type.name() + "\t" + completed + "\t" + description + "\t" + details;
     }
