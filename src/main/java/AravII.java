@@ -1,8 +1,14 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 
 public class AravII {
+    private static final Path DATA_FILE = Path.of("data", "aravii.txt");
+
     /** Identifies the supported task categories and their display symbols. */
     private enum TaskType {
         TODO("T"),
@@ -59,6 +65,48 @@ public class AravII {
         return description;
     }
 
+    /** Loads previously saved tasks, returning an empty list if no save exists yet. */
+    private static List<Task> loadTasks() {
+        List<Task> tasks = new ArrayList<>();
+        if (!Files.exists(DATA_FILE)) {
+            return tasks;
+        }
+
+        try {
+            for (String line : Files.readAllLines(DATA_FILE)) {
+                String[] fields = line.split("\\t", -1);
+                if (fields.length != 4) {
+                    continue;
+                }
+                Task task = new Task(TaskType.valueOf(fields[0]), fields[2], fields[3]);
+                task.completed = Boolean.parseBoolean(fields[1]);
+                tasks.add(task);
+            }
+        } catch (IOException | IllegalArgumentException exception) {
+            System.out.println("Error: Could not load saved tasks.");
+        }
+        return tasks;
+    }
+
+    /** Saves all current tasks so they can be restored in the next session. */
+    private static void saveTasks(List<Task> tasks) {
+        List<String> lines = new ArrayList<>();
+        for (Task task : tasks) {
+            lines.add(task.type.name() + "\t"
+                    + task.completed + "\t"
+                    + task.description + "\t"
+                    + task.details);
+        }
+
+        try {
+            Files.createDirectories(DATA_FILE.getParent());
+            Files.write(DATA_FILE, lines, StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException exception) {
+            System.out.println("Error: Could not save tasks.");
+        }
+    }
+
     public static void main(String[] args) {
         String banner = "____________________________________________________________\n"
                 + "     _    ____      _       __      __\n"
@@ -72,12 +120,13 @@ public class AravII {
                 + "____________________________________________________________";
         System.out.println(banner);
 
-        List<Task> tasks = new ArrayList<>();
+        List<Task> tasks = loadTasks();
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String input = scanner.nextLine();
             try {
                 if (input.equals("bye")) {
+                    saveTasks(tasks);
                     break;
                 } else if (input.equals("list")) {
                     for (int i = 0; i < tasks.size(); i++) {
@@ -119,6 +168,7 @@ public class AravII {
             } catch (IllegalArgumentException exception) {
                 System.out.println("Error: " + exception.getMessage());
             }
+            saveTasks(tasks);
         }
 
         System.out.println("Bye. Hope to see you again soon!");
