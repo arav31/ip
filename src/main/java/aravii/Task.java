@@ -1,3 +1,5 @@
+package aravii;
+
 /** Represents a task and its optional deadline or event details. */
 public class Task {
     private final TaskType type;
