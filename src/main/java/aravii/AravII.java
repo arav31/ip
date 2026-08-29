@@ -7,7 +7,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
+/** Runs the Arav II command-line task manager. */
 public class AravII {
+    /** Location of the file used to persist tasks between runs. */
     private static final Path DATA_FILE = Path.of("data", "aravii.txt");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final DateTimeFormatter DATE_TIME_FORMAT =
@@ -39,6 +41,7 @@ public class AravII {
         }
     }
 
+    /** Starts the chatbot and processes commands until the user enters {@code bye}. */
     public static void main(String[] args) {
         String banner = "____________________________________________________________\n"
                 + "     _    ____      _       __      __\n"

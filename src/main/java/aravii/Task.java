@@ -7,6 +7,13 @@ public class Task {
     private final String details;
     private boolean completed;
 
+    /**
+     * Creates a task with its category, description, and optional details.
+     *
+     * @param type the category of the task
+     * @param description the task description
+     * @param details the deadline or event details, if applicable
+     */
     public Task(TaskType type, String description, String details) {
         this.type = type;
         this.description = description;
