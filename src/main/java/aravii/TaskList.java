@@ -75,4 +75,13 @@ public class TaskList {
             System.out.println((i + 1) + ". " + tasks.get(i));
         }
     }
+
+    /** Prints all tasks whose description or details contain the given keyword. */
+    public void printMatching(String keyword) {
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).matches(keyword)) {
+                System.out.println((i + 1) + ". " + tasks.get(i));
+            }
+        }
+    }
 }

@@ -65,6 +65,9 @@ public class AravII {
                     break;
                 } else if (input.equals("list")) {
                     tasks.printAll();
+                } else if (input.startsWith("find ")) {
+                    String keyword = requireDescription(input.substring(5));
+                    tasks.printMatching(keyword);
                 } else if (input.startsWith("todo ")) {
                     tasks.add(new Task(TaskType.TODO, requireDescription(input.substring(5)), ""));
                 } else if (input.startsWith("deadline ")) {
