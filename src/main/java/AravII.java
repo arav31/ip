@@ -4,10 +4,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class AravII {
     private static final Path DATA_FILE = Path.of("data", "aravii.txt");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter DATE_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     /** Identifies the supported task categories and their display symbols. */
     private enum TaskType {
@@ -63,6 +70,24 @@ public class AravII {
             throw new IllegalArgumentException("The task description cannot be empty.");
         }
         return description;
+    }
+
+    /** Validates and normalises a deadline date in YYYY-MM-DD format. */
+    private static String parseDate(String date) {
+        try {
+            return LocalDate.parse(date.trim(), DATE_FORMAT).format(DATE_FORMAT);
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("Use dates in YYYY-MM-DD format.");
+        }
+    }
+
+    /** Validates and normalises an event date and time in YYYY-MM-DD HH:MM format. */
+    private static String parseDateTime(String dateTime) {
+        try {
+            return LocalDateTime.parse(dateTime.trim(), DATE_TIME_FORMAT).format(DATE_TIME_FORMAT);
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("Use date and time in YYYY-MM-DD HH:MM format.");
+        }
     }
 
     /** Loads previously saved tasks, returning an empty list if no save exists yet. */
@@ -140,7 +165,7 @@ public class AravII {
                         throw new IllegalArgumentException("A deadline must include /by followed by a date.");
                     }
                     String description = requireDescription(input.substring(9, byIndex));
-                    String date = requireDescription(input.substring(byIndex + 5));
+                    String date = parseDate(requireDescription(input.substring(byIndex + 5)));
                     tasks.add(new Task(TaskType.DEADLINE, description, "(by: " + date + ")"));
                 } else if (input.startsWith("event ")) {
                     int fromIndex = input.indexOf(" /from ");
@@ -150,8 +175,8 @@ public class AravII {
                                 "An event must include /from and /to followed by times.");
                     }
                     String description = requireDescription(input.substring(6, fromIndex));
-                    String from = requireDescription(input.substring(fromIndex + 7, toIndex));
-                    String to = requireDescription(input.substring(toIndex + 5));
+                    String from = parseDateTime(requireDescription(input.substring(fromIndex + 7, toIndex)));
+                    String to = parseDateTime(requireDescription(input.substring(toIndex + 5)));
                     tasks.add(new Task(TaskType.EVENT, description,
                             "(from: " + from + " to: " + to + ")"));
                 } else if (input.startsWith("mark ")) {
