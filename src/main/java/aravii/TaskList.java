@@ -44,9 +44,14 @@ public class TaskList {
         }
     }
 
-    /** Adds a task to the list. */
-    public void add(Task task) {
-        tasks.add(task);
+    /** Adds one or more tasks to the list.
+     *
+     * @param newTasks the tasks to add
+     */
+    public void add(Task... newTasks) {
+        for (Task task : newTasks) {
+            tasks.add(task);
+        }
     }
 
     /** Returns the task selected by a one-based task number. */
