@@ -71,17 +71,38 @@ public class TaskList {
 
     /** Prints all tasks with one-based numbering. */
     public void printAll() {
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + ". " + tasks.get(i));
-        }
+        System.out.print(formatAll());
     }
 
     /** Prints all tasks whose description or details contain the given keyword. */
     public void printMatching(String keyword) {
+        System.out.print(formatMatching(keyword));
+    }
+
+    /** Formats all tasks with one-based numbering.
+     *
+     * @return the formatted task list
+     */
+    public String formatAll() {
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < tasks.size(); i++) {
+            output.append(i + 1).append(". ").append(tasks.get(i)).append("\n");
+        }
+        return output.toString();
+    }
+
+    /** Formats tasks whose descriptions or details contain the given keyword.
+     *
+     * @param keyword the keyword to search for
+     * @return the matching tasks
+     */
+    public String formatMatching(String keyword) {
+        StringBuilder output = new StringBuilder();
         for (int i = 0; i < tasks.size(); i++) {
             if (tasks.get(i).matches(keyword)) {
-                System.out.println((i + 1) + ". " + tasks.get(i));
+                output.append(i + 1).append(". ").append(tasks.get(i)).append("\n");
             }
         }
+        return output.toString();
     }
 }
