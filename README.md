@@ -38,3 +38,5 @@ Use Java 25, then run the application with:
 ```bash
 gradle run
 ```
+
+Enter `help` in the chatbot to display all available commands.

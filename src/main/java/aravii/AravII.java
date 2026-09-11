@@ -41,6 +41,22 @@ public class AravII {
         }
     }
 
+    /** Prints the commands supported by the chatbot. */
+    private static void printHelp() {
+        System.out.println("Available commands:");
+        System.out.println("todo <description>");
+        System.out.println("deadline <description> /by <YYYY-MM-DD>");
+        System.out.println("event <description> /from <YYYY-MM-DD HH:MM> "
+                + "/to <YYYY-MM-DD HH:MM>");
+        System.out.println("list");
+        System.out.println("mark <number>");
+        System.out.println("unmark <number>");
+        System.out.println("delete <number>");
+        System.out.println("find <keyword>");
+        System.out.println("help");
+        System.out.println("bye");
+    }
+
     /** Starts the chatbot and processes commands until the user enters {@code bye}. */
     public static void main(String[] args) {
         String banner = "____________________________________________________________\n"
@@ -63,6 +79,8 @@ public class AravII {
                 if (input.equals("bye")) {
                     tasks.save(DATA_FILE);
                     break;
+                } else if (input.equals("help")) {
+                    printHelp();
                 } else if (input.equals("list")) {
                     tasks.printAll();
                 } else if (input.startsWith("find ")) {
