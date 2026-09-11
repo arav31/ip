@@ -7,7 +7,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
+/** Runs the Arav II command-line task manager. */
 public class AravII {
+    /** Location of the file used to persist tasks between runs. */
     private static final Path DATA_FILE = Path.of("data", "aravii.txt");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final DateTimeFormatter DATE_TIME_FORMAT =
@@ -21,7 +23,7 @@ public class AravII {
         return description;
     }
 
-    /** Validates and normalises a deadline date in YYYY-MM-DD format. */
+    /** Validates and normalizes a deadline date in YYYY-MM-DD format. */
     private static String parseDate(String date) {
         try {
             return LocalDate.parse(date.trim(), DATE_FORMAT).format(DATE_FORMAT);
@@ -30,7 +32,7 @@ public class AravII {
         }
     }
 
-    /** Validates and normalises an event date and time in YYYY-MM-DD HH:MM format. */
+    /** Validates and normalizes an event date and time in YYYY-MM-DD HH:MM format. */
     private static String parseDateTime(String dateTime) {
         try {
             return LocalDateTime.parse(dateTime.trim(), DATE_TIME_FORMAT).format(DATE_TIME_FORMAT);
@@ -39,6 +41,23 @@ public class AravII {
         }
     }
 
+    /** Prints the commands supported by the chatbot. */
+    private static void printHelp() {
+        System.out.println("Available commands:");
+        System.out.println("todo <description>");
+        System.out.println("deadline <description> /by <YYYY-MM-DD>");
+        System.out.println("event <description> /from <YYYY-MM-DD HH:MM> "
+                + "/to <YYYY-MM-DD HH:MM>");
+        System.out.println("list");
+        System.out.println("mark <number>");
+        System.out.println("unmark <number>");
+        System.out.println("delete <number>");
+        System.out.println("find <keyword>");
+        System.out.println("help");
+        System.out.println("bye");
+    }
+
+    /** Starts the chatbot and processes commands until the user enters {@code bye}. */
     public static void main(String[] args) {
         String banner = "____________________________________________________________\n"
                 + "     _    ____      _       __      __\n"
@@ -60,8 +79,13 @@ public class AravII {
                 if (input.equals("bye")) {
                     tasks.save(DATA_FILE);
                     break;
+                } else if (input.equals("help")) {
+                    printHelp();
                 } else if (input.equals("list")) {
                     tasks.printAll();
+                } else if (input.startsWith("find ")) {
+                    String keyword = requireDescription(input.substring(5));
+                    tasks.printMatching(keyword);
                 } else if (input.startsWith("todo ")) {
                     tasks.add(new Task(TaskType.TODO, requireDescription(input.substring(5)), ""));
                 } else if (input.startsWith("deadline ")) {

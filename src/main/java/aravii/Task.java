@@ -7,6 +7,13 @@ public class Task {
     private final String details;
     private boolean completed;
 
+    /**
+     * Creates a task with its category, description, and optional details.
+     *
+     * @param type the category of the task
+     * @param description the task description
+     * @param details the deadline or event details, if applicable
+     */
     public Task(TaskType type, String description, String details) {
         this.type = type;
         this.description = description;
@@ -23,7 +30,13 @@ public class Task {
         completed = false;
     }
 
-    /** Serialises this task for storage in the save file. */
+    /** Returns whether this task contains the given keyword. */
+    public boolean matches(String keyword) {
+        String searchableText = (description + " " + details).toLowerCase();
+        return searchableText.contains(keyword.toLowerCase());
+    }
+
+    /** Serializes this task for storage in the save file. */
     public String serialize() {
         return type.name() + "\t" + completed + "\t" + description + "\t" + details;
     }
