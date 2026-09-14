@@ -3,8 +3,11 @@ package aravii;
 /** Represents a task and its optional deadline or event details. */
 public class Task {
     private final TaskType type;
+
     private final String description;
+
     private final String details;
+
     private boolean completed;
 
     /**
@@ -30,18 +33,29 @@ public class Task {
         completed = false;
     }
 
-    /** Returns whether this task contains the given keyword. */
+    /** Returns whether this task contains the given keyword.
+     *
+     * @param keyword the keyword to search for
+     * @return whether the keyword occurs in the task
+     */
     public boolean matches(String keyword) {
         String searchableText = (description + " " + details).toLowerCase();
         return searchableText.contains(keyword.toLowerCase());
     }
 
-    /** Serializes this task for storage in the save file. */
+    /** Serializes this task for storage in the save file.
+     *
+     * @return the serialized task
+     */
     public String serialize() {
         return type.name() + "\t" + completed + "\t" + description + "\t" + details;
     }
 
-    /** Recreates a task from a line in the save file. */
+    /** Recreates a task from a line in the save file.
+     *
+     * @param line the serialized task
+     * @return the recreated task
+     */
     public static Task deserialize(String line) {
         String[] fields = line.split("\\t", -1);
         if (fields.length != 4) {
