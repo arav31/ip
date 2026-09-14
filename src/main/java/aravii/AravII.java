@@ -1,75 +1,12 @@
 package aravii;
 
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 /** Runs the Arav II command-line task manager. */
 public class AravII {
     /** Location of the file used to persist tasks between runs. */
     private static final Path DATA_FILE = Path.of("data", "aravii.txt");
-
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
-
-    private static final DateTimeFormatter DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-    /** Rejects an empty task description.
-     *
-     * @param description the task description to validate
-     * @return the validated description
-     */
-    private static String requireDescription(String description) {
-        if (description.isBlank()) {
-            throw new IllegalArgumentException("The task description cannot be empty.");
-        }
-        return description;
-    }
-
-    /** Validates and normalizes a deadline date in YYYY-MM-DD format.
-     *
-     * @param date the date to validate
-     * @return the normalized date
-     */
-    private static String parseDate(String date) {
-        try {
-            return LocalDate.parse(date.trim(), DATE_FORMAT).format(DATE_FORMAT);
-        } catch (DateTimeParseException exception) {
-            throw new IllegalArgumentException("Use dates in YYYY-MM-DD format.");
-        }
-    }
-
-    /** Validates and normalizes an event date and time in YYYY-MM-DD HH:MM format.
-     *
-     * @param dateTime the date and time to validate
-     * @return the normalized date and time
-     */
-    private static String parseDateTime(String dateTime) {
-        try {
-            return LocalDateTime.parse(dateTime.trim(), DATE_TIME_FORMAT).format(DATE_TIME_FORMAT);
-        } catch (DateTimeParseException exception) {
-            throw new IllegalArgumentException("Use date and time in YYYY-MM-DD HH:MM format.");
-        }
-    }
-
-    /** Prints the commands supported by the chatbot. */
-    private static void printHelp() {
-        System.out.println("Available commands:");
-        System.out.println("todo <description>");
-        System.out.println("deadline <description> /by <YYYY-MM-DD>");
-        System.out.println("event <description> /from <YYYY-MM-DD HH:MM> "
-                + "/to <YYYY-MM-DD HH:MM>");
-        System.out.println("list");
-        System.out.println("mark <number>");
-        System.out.println("unmark <number>");
-        System.out.println("delete <number>");
-        System.out.println("find <keyword>");
-        System.out.println("help");
-        System.out.println("bye");
-    }
 
     /** Starts the chatbot and processes commands until the user enters {@code bye}.
      *
@@ -89,6 +26,7 @@ public class AravII {
         System.out.println(banner);
 
         TaskList tasks = TaskList.load(DATA_FILE);
+        CommandHandler commandHandler = new CommandHandler();
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String input = scanner.nextLine();
@@ -97,10 +35,7 @@ public class AravII {
                     tasks.save(DATA_FILE);
                     break;
                 } else {
-                    String response = executeCommand(tasks, input);
-                    if (!response.isEmpty()) {
-                        System.out.println(response);
-                    }
+                    System.out.println(commandHandler.execute(tasks, input));
                 }
             } catch (IllegalArgumentException exception) {
                 System.out.println("Error: " + exception.getMessage());
@@ -112,60 +47,4 @@ public class AravII {
         System.out.println("____________________________________________________________");
     }
 
-    /** Executes a supported CLI command and returns the user-facing response.
-     *
-     * @param tasks the current task list
-     * @param input the command to execute
-     * @return the command response
-     */
-    private static String executeCommand(TaskList tasks, String input) {
-        if (input.equals("help")) {
-            printHelp();
-            return "";
-        } else if (input.equals("list")) {
-            tasks.printAll();
-            return "";
-        } else if (input.startsWith("find ")) {
-            tasks.printMatching(requireDescription(input.substring(5)));
-            return "";
-        } else if (input.startsWith("todo ")) {
-            Task task = new Task(TaskType.TODO, requireDescription(input.substring(5)), "");
-            tasks.add(task);
-            return "Added: " + task;
-        } else if (input.startsWith("deadline ")) {
-            int byIndex = input.indexOf(" /by ");
-            if (byIndex < 0) {
-                throw new IllegalArgumentException("A deadline must include /by followed by a date.");
-            }
-            String description = requireDescription(input.substring(9, byIndex));
-            String date = parseDate(requireDescription(input.substring(byIndex + 5)));
-            Task task = new Task(TaskType.DEADLINE, description, "(by: " + date + ")");
-            tasks.add(task);
-            return "Added: " + task;
-        } else if (input.startsWith("event ")) {
-            int fromIndex = input.indexOf(" /from ");
-            int toIndex = input.indexOf(" /to ");
-            if (fromIndex < 0 || toIndex < 0 || toIndex < fromIndex) {
-                throw new IllegalArgumentException(
-                        "An event must include /from and /to followed by times.");
-            }
-            String description = requireDescription(input.substring(6, fromIndex));
-            String from = parseDateTime(requireDescription(input.substring(fromIndex + 7, toIndex)));
-            String to = parseDateTime(requireDescription(input.substring(toIndex + 5)));
-            Task task = new Task(TaskType.EVENT, description, "(from: " + from + " to: " + to + ")");
-            tasks.add(task);
-            return "Added: " + task;
-        } else if (input.startsWith("mark ")) {
-            Task task = tasks.get(input.substring(5));
-            task.mark();
-            return "Marked: " + task;
-        } else if (input.startsWith("unmark ")) {
-            Task task = tasks.get(input.substring(7));
-            task.unmark();
-            return "Unmarked: " + task;
-        } else if (input.startsWith("delete ")) {
-            return "Deleted: " + tasks.remove(input.substring(7));
-        }
-        throw new IllegalArgumentException("I don't recognise that command.");
-    }
 }
