@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.junit.jupiter.api.Test;
 
 /** Tests task state, formatting, matching, and persistence behaviour. */
@@ -54,5 +58,16 @@ class TaskTest {
 
         assertEquals("[T] [ ] first task", taskList.get("1").toString());
         assertEquals("[T] [ ] second task", taskList.get("2").toString());
+    }
+
+    @Test
+    void load_doesNotKeepPartiallyLoadedTasks() throws IOException {
+        Path dataFile = Files.createTempFile("aravii", ".txt");
+        Files.writeString(dataFile, "TODO\tfalse\tvalid task\t\ninvalid saved task\n");
+
+        TaskList taskList = TaskList.load(dataFile);
+
+        assertEquals("", taskList.formatAll());
+        Files.deleteIfExists(dataFile);
     }
 }

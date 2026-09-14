@@ -96,44 +96,11 @@ public class AravII {
                 if (input.equals("bye")) {
                     tasks.save(DATA_FILE);
                     break;
-                } else if (input.equals("help")) {
-                    printHelp();
-                } else if (input.equals("list")) {
-                    tasks.printAll();
-                } else if (input.startsWith("find ")) {
-                    String keyword = requireDescription(input.substring(5));
-                    tasks.printMatching(keyword);
-                } else if (input.startsWith("todo ")) {
-                    tasks.add(new Task(TaskType.TODO, requireDescription(input.substring(5)), ""));
-                } else if (input.startsWith("deadline ")) {
-                    int byIndex = input.indexOf(" /by ");
-                    if (byIndex < 0) {
-                        throw new IllegalArgumentException("A deadline must include /by followed by a date.");
-                    }
-                    String description = requireDescription(input.substring(9, byIndex));
-                    String date = parseDate(requireDescription(input.substring(byIndex + 5)));
-                    tasks.add(new Task(TaskType.DEADLINE, description, "(by: " + date + ")"));
-                } else if (input.startsWith("event ")) {
-                    int fromIndex = input.indexOf(" /from ");
-                    int toIndex = input.indexOf(" /to ");
-                    if (fromIndex < 0 || toIndex < 0 || toIndex < fromIndex) {
-                        throw new IllegalArgumentException(
-                                "An event must include /from and /to followed by times.");
-                    }
-                    String description = requireDescription(input.substring(6, fromIndex));
-                    String from = parseDateTime(requireDescription(input.substring(fromIndex + 7, toIndex)));
-                    String to = parseDateTime(requireDescription(input.substring(toIndex + 5)));
-                    tasks.add(new Task(TaskType.EVENT,
-                            description, "(from: " + from + " to: " + to + ")"));
-                } else if (input.startsWith("mark ")) {
-                    tasks.get(input.substring(5)).mark();
-                } else if (input.startsWith("unmark ")) {
-                    tasks.get(input.substring(7)).unmark();
-                } else if (input.startsWith("delete ")) {
-                    Task deletedTask = tasks.remove(input.substring(7));
-                    System.out.println("Deleted: " + deletedTask);
                 } else {
-                    throw new IllegalArgumentException("I don't recognise that command.");
+                    String response = executeCommand(tasks, input);
+                    if (!response.isEmpty()) {
+                        System.out.println(response);
+                    }
                 }
             } catch (IllegalArgumentException exception) {
                 System.out.println("Error: " + exception.getMessage());
@@ -143,5 +110,62 @@ public class AravII {
 
         System.out.println("Bye. Hope to see you again soon!");
         System.out.println("____________________________________________________________");
+    }
+
+    /** Executes a supported CLI command and returns the user-facing response.
+     *
+     * @param tasks the current task list
+     * @param input the command to execute
+     * @return the command response
+     */
+    private static String executeCommand(TaskList tasks, String input) {
+        if (input.equals("help")) {
+            printHelp();
+            return "";
+        } else if (input.equals("list")) {
+            tasks.printAll();
+            return "";
+        } else if (input.startsWith("find ")) {
+            tasks.printMatching(requireDescription(input.substring(5)));
+            return "";
+        } else if (input.startsWith("todo ")) {
+            Task task = new Task(TaskType.TODO, requireDescription(input.substring(5)), "");
+            tasks.add(task);
+            return "Added: " + task;
+        } else if (input.startsWith("deadline ")) {
+            int byIndex = input.indexOf(" /by ");
+            if (byIndex < 0) {
+                throw new IllegalArgumentException("A deadline must include /by followed by a date.");
+            }
+            String description = requireDescription(input.substring(9, byIndex));
+            String date = parseDate(requireDescription(input.substring(byIndex + 5)));
+            Task task = new Task(TaskType.DEADLINE, description, "(by: " + date + ")");
+            tasks.add(task);
+            return "Added: " + task;
+        } else if (input.startsWith("event ")) {
+            int fromIndex = input.indexOf(" /from ");
+            int toIndex = input.indexOf(" /to ");
+            if (fromIndex < 0 || toIndex < 0 || toIndex < fromIndex) {
+                throw new IllegalArgumentException(
+                        "An event must include /from and /to followed by times.");
+            }
+            String description = requireDescription(input.substring(6, fromIndex));
+            String from = parseDateTime(requireDescription(input.substring(fromIndex + 7, toIndex)));
+            String to = parseDateTime(requireDescription(input.substring(toIndex + 5)));
+            Task task = new Task(TaskType.EVENT, description, "(from: " + from + " to: " + to + ")");
+            tasks.add(task);
+            return "Added: " + task;
+        } else if (input.startsWith("mark ")) {
+            Task task = tasks.get(input.substring(5));
+            task.mark();
+            return "Marked: " + task;
+        } else if (input.startsWith("unmark ")) {
+            Task task = tasks.get(input.substring(7));
+            task.unmark();
+            return "Unmarked: " + task;
+        } else if (input.startsWith("delete ")) {
+            return "Deleted: " + tasks.remove(input.substring(7));
+        }
+        throw new IllegalArgumentException("I don't recognise that command.");
     }
 }

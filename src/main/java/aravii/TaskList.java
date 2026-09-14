@@ -23,9 +23,11 @@ public class TaskList {
         }
 
         try {
+            List<Task> loadedTasks = new ArrayList<>();
             for (String line : Files.readAllLines(dataFile)) {
-                taskList.tasks.add(Task.deserialize(line));
+                loadedTasks.add(Task.deserialize(line));
             }
+            taskList.tasks.addAll(loadedTasks);
         } catch (IOException | IllegalArgumentException exception) {
             System.out.println("Error: Could not load saved tasks.");
         }

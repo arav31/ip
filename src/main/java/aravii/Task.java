@@ -8,7 +8,7 @@ public class Task {
 
     private final String details;
 
-    private boolean completed;
+    private boolean isCompleted;
 
     /**
      * Creates a task with its category, description, and optional details.
@@ -25,12 +25,12 @@ public class Task {
 
     /** Marks this task as completed. */
     public void mark() {
-        completed = true;
+        isCompleted = true;
     }
 
     /** Marks this task as not completed. */
     public void unmark() {
-        completed = false;
+        isCompleted = false;
     }
 
     /** Returns whether this task contains the given keyword.
@@ -48,7 +48,7 @@ public class Task {
      * @return the serialized task
      */
     public String serialize() {
-        return type.name() + "\t" + completed + "\t" + description + "\t" + details;
+        return type.name() + "\t" + isCompleted + "\t" + description + "\t" + details;
     }
 
     /** Recreates a task from a line in the save file.
@@ -71,7 +71,7 @@ public class Task {
     /** Returns the task in the format shown by the list command. */
     @Override
     public String toString() {
-        String status = completed ? "[X]" : "[ ]";
+        String status = isCompleted ? "[X]" : "[ ]";
         String taskDetails = details.isEmpty() ? "" : " " + details;
         return "[" + type.getSymbol() + "] " + status + " " + description + taskDetails;
     }
