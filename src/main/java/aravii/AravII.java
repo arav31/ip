@@ -11,11 +11,17 @@ import java.util.Scanner;
 public class AravII {
     /** Location of the file used to persist tasks between runs. */
     private static final Path DATA_FILE = Path.of("data", "aravii.txt");
+
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
+
     private static final DateTimeFormatter DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    /** Rejects an empty task description. */
+    /** Rejects an empty task description.
+     *
+     * @param description the task description to validate
+     * @return the validated description
+     */
     private static String requireDescription(String description) {
         if (description.isBlank()) {
             throw new IllegalArgumentException("The task description cannot be empty.");
@@ -23,7 +29,11 @@ public class AravII {
         return description;
     }
 
-    /** Validates and normalizes a deadline date in YYYY-MM-DD format. */
+    /** Validates and normalizes a deadline date in YYYY-MM-DD format.
+     *
+     * @param date the date to validate
+     * @return the normalized date
+     */
     private static String parseDate(String date) {
         try {
             return LocalDate.parse(date.trim(), DATE_FORMAT).format(DATE_FORMAT);
@@ -32,7 +42,11 @@ public class AravII {
         }
     }
 
-    /** Validates and normalizes an event date and time in YYYY-MM-DD HH:MM format. */
+    /** Validates and normalizes an event date and time in YYYY-MM-DD HH:MM format.
+     *
+     * @param dateTime the date and time to validate
+     * @return the normalized date and time
+     */
     private static String parseDateTime(String dateTime) {
         try {
             return LocalDateTime.parse(dateTime.trim(), DATE_TIME_FORMAT).format(DATE_TIME_FORMAT);
@@ -57,7 +71,10 @@ public class AravII {
         System.out.println("bye");
     }
 
-    /** Starts the chatbot and processes commands until the user enters {@code bye}. */
+    /** Starts the chatbot and processes commands until the user enters {@code bye}.
+     *
+     * @param args command-line arguments, which are not used
+     */
     public static void main(String[] args) {
         String banner = "____________________________________________________________\n"
                 + "     _    ____      _       __      __\n"

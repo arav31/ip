@@ -11,7 +11,11 @@ import java.util.List;
 public class TaskList {
     private final List<Task> tasks = new ArrayList<>();
 
-    /** Loads tasks from disk, or creates an empty list when no save exists. */
+    /** Loads tasks from disk, or creates an empty list when no save exists.
+     *
+     * @param dataFile the file containing the saved tasks
+     * @return the loaded task list
+     */
     public static TaskList load(Path dataFile) {
         TaskList taskList = new TaskList();
         if (!Files.exists(dataFile)) {
@@ -28,7 +32,10 @@ public class TaskList {
         return taskList;
     }
 
-    /** Saves all tasks to disk. */
+    /** Saves all tasks to disk.
+     *
+     * @param dataFile the file in which to save the tasks
+     */
     public void save(Path dataFile) {
         List<String> lines = new ArrayList<>();
         for (Task task : tasks) {
@@ -44,12 +51,19 @@ public class TaskList {
         }
     }
 
-    /** Adds a task to the list. */
+    /** Adds a task to the list.
+     *
+     * @param task the task to add
+     */
     public void add(Task task) {
         tasks.add(task);
     }
 
-    /** Returns the task selected by a one-based task number. */
+    /** Returns the task selected by a one-based task number.
+     *
+     * @param taskNumber the one-based task number
+     * @return the selected task
+     */
     public Task get(String taskNumber) {
         try {
             int index = Integer.parseInt(taskNumber) - 1;
@@ -62,7 +76,11 @@ public class TaskList {
         }
     }
 
-    /** Removes and returns the task selected by a one-based task number. */
+    /** Removes and returns the task selected by a one-based task number.
+     *
+     * @param taskNumber the one-based task number
+     * @return the removed task
+     */
     public Task remove(String taskNumber) {
         Task task = get(taskNumber);
         tasks.remove(task);
@@ -76,7 +94,10 @@ public class TaskList {
         }
     }
 
-    /** Prints all tasks whose description or details contain the given keyword. */
+    /** Prints all tasks whose description or details contain the given keyword.
+     *
+     * @param keyword the keyword to search for
+     */
     public void printMatching(String keyword) {
         for (int i = 0; i < tasks.size(); i++) {
             if (tasks.get(i).matches(keyword)) {
