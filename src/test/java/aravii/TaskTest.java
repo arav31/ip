@@ -44,4 +44,15 @@ class TaskTest {
 
         assertEquals(original.toString(), restored.toString());
     }
+
+    @Test
+    void add_acceptsMultipleTasks() {
+        TaskList taskList = new TaskList();
+
+        taskList.add(new Task(TaskType.TODO, "first task", ""),
+                new Task(TaskType.TODO, "second task", ""));
+
+        assertEquals("[T] [ ] first task", taskList.get("1").toString());
+        assertEquals("[T] [ ] second task", taskList.get("2").toString());
+    }
 }
