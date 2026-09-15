@@ -59,6 +59,7 @@ public class TaskList {
      */
     public void add(Task... newTasks) {
         for (Task task : newTasks) {
+            assert task != null : "Task list must not contain null tasks";
             tasks.add(task);
         }
     }
@@ -74,6 +75,7 @@ public class TaskList {
             if (index < 0 || index >= tasks.size()) {
                 throw new IllegalArgumentException("That task number does not exist.");
             }
+            assert tasks.get(index) != null : "Task list must not contain null tasks";
             return tasks.get(index);
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException("Please provide a valid task number.");
