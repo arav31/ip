@@ -61,6 +61,16 @@ class TaskTest {
     }
 
     @Test
+    void formattingStreams_preserveOrderAndTaskNumbers() {
+        TaskList taskList = new TaskList();
+        taskList.add(new Task(TaskType.TODO, "first", ""),
+                new Task(TaskType.TODO, "second", ""));
+
+        assertEquals("1. [T] [ ] first\n2. [T] [ ] second\n", taskList.formatAll());
+        assertEquals("2. [T] [ ] second\n", taskList.formatMatching("second"));
+    }
+
+    @Test
     void load_doesNotKeepPartiallyLoadedTasks() throws IOException {
         Path dataFile = Files.createTempFile("aravii", ".txt");
         Files.writeString(dataFile, "TODO\tfalse\tvalid task\t\ninvalid saved task\n");

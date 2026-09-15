@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /** Owns the collection of tasks and its persistent storage. */
 public class TaskList {
@@ -109,11 +111,10 @@ public class TaskList {
      * @return the formatted task list
      */
     public String formatAll() {
-        StringBuilder output = new StringBuilder();
-        for (int i = 0; i < tasks.size(); i++) {
-            output.append(i + 1).append(". ").append(tasks.get(i)).append("\n");
-        }
-        return output.toString();
+        String output = IntStream.range(0, tasks.size())
+                .mapToObj(index -> (index + 1) + ". " + tasks.get(index))
+                .collect(Collectors.joining("\n"));
+        return output.isEmpty() ? output : output + "\n";
     }
 
     /** Formats tasks whose descriptions or details contain the given keyword.
@@ -122,12 +123,10 @@ public class TaskList {
      * @return the matching tasks
      */
     public String formatMatching(String keyword) {
-        StringBuilder output = new StringBuilder();
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).matches(keyword)) {
-                output.append(i + 1).append(". ").append(tasks.get(i)).append("\n");
-            }
-        }
-        return output.toString();
+        String output = IntStream.range(0, tasks.size())
+                .filter(index -> tasks.get(index).matches(keyword))
+                .mapToObj(index -> (index + 1) + ". " + tasks.get(index))
+                .collect(Collectors.joining("\n"));
+        return output.isEmpty() ? output : output + "\n";
     }
 }
