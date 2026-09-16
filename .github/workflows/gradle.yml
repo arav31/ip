@@ -20,7 +20,5 @@ jobs:
           java-version: '25'
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.7.1'
-      - name: Run tests and Checkstyle
-        run: gradle --no-daemon test checkstyleMain
+      - name: Run tests, both Checkstyle checks, and package the application
+        run: ./gradlew --no-daemon clean check jar macArmJar javadoc
