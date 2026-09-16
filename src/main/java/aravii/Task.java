@@ -1,89 +1,98 @@
 package aravii;
 
-/** Represents a task and its optional deadline or event details. */
-public class Task {
-    private final TaskType type;
+import java.util.Locale;
 
+/**
+ * Represents the description and completion state shared by every task type.
+ */
+public abstract class Task {
     private final String description;
-
-    private final String details;
 
     private boolean isCompleted;
 
     /**
-     * Creates a task with its category, description, and optional details.
+     * Creates an incomplete task with a nonempty, single-line description.
      *
-     * @param type the category of the task
-     * @param description the task description
-     * @param details the deadline or event details, if applicable
+     * @param description The task description.
      */
-    public Task(TaskType type, String description, String details) {
-        assert type != null : "Task type must not be null";
+    protected Task(String description) {
         assert description != null : "Task description must not be null";
-        assert details != null : "Task details must not be null";
-        this.type = type;
-        this.description = description;
-        this.details = details;
+        Parser.validateText(description);
+        if (description.isBlank()) {
+            throw new IllegalArgumentException("The description cannot be empty.");
+        }
+        this.description = description.strip();
     }
 
-    /** Marks this task as completed. */
+    /**
+     * Marks this task as completed.
+     */
     public void mark() {
         isCompleted = true;
     }
 
-    /** Marks this task as not completed. */
+    /**
+     * Marks this task as not completed.
+     */
     public void unmark() {
         isCompleted = false;
     }
 
-    /** Returns whether this task contains the given keyword.
+    /**
+     * Returns whether the description, displayed dates, or input dates match.
      *
-     * @param keyword the keyword to search for
-     * @return whether the keyword occurs in the task
+     * @param keyword The case-insensitive search term.
+     * @return Whether the term occurs in this task.
      */
     public boolean matches(String keyword) {
-        String searchableText = (description + " " + details).toLowerCase();
-        return searchableText.contains(keyword.toLowerCase());
+        String searchableText = description + " " + formatDetails() + " " + formatStorageDetails();
+        return searchableText.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
     }
 
-    /** Returns the task description used for alphabetical sorting.
+    /**
+     * Returns the task description used for display and sorting.
      *
-     * @return the task description
+     * @return The description.
      */
     public String getDescription() {
         return description;
     }
 
-    /** Serializes this task for storage in the save file.
+    /**
+     * Returns whether this task has been marked complete.
      *
-     * @return the serialized task
+     * @return The completion state.
      */
-    public String serialize() {
-        return type.name() + "\t" + isCompleted + "\t" + description + "\t" + details;
+    public boolean isCompleted() {
+        return isCompleted;
     }
 
-    /** Recreates a task from a line in the save file.
+    /**
+     * Returns the task category used for its display symbol and saved record.
      *
-     * @param line the serialized task
-     * @return the recreated task
+     * @return The task category.
      */
-    public static Task deserialize(String line) {
-        String[] fields = line.split("\\t", -1);
-        if (fields.length != 4) {
-            throw new IllegalArgumentException("Invalid saved task.");
-        }
-        Task task = new Task(TaskType.valueOf(fields[0]), fields[2], fields[3]);
-        if (Boolean.parseBoolean(fields[1])) {
-            task.mark();
-        }
-        return task;
-    }
+    abstract TaskType getType();
 
-    /** Returns the task in the format shown by the list command. */
+    /**
+     * Formats the task-specific information for display.
+     *
+     * @return The details, or an empty string for an undated task.
+     */
+    abstract String formatDetails();
+
+    /**
+     * Formats task-specific information using the existing ISO save format.
+     *
+     * @return The details to store in the fourth save-file column.
+     */
+    abstract String formatStorageDetails();
+
     @Override
     public String toString() {
+        String details = formatDetails();
         String status = isCompleted ? "[X]" : "[ ]";
-        String taskDetails = details.isEmpty() ? "" : " " + details;
-        return "[" + type.getSymbol() + "] " + status + " " + description + taskDetails;
+        return "[" + getType().getSymbol() + "] " + status + " " + description
+                + (details.isEmpty() ? "" : " " + details);
     }
 }

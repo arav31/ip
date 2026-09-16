@@ -1,6 +1,8 @@
 package aravii;
 
-/** Identifies the supported task categories and their display symbols. */
+/**
+ * Identifies the supported task categories and their display symbols.
+ */
 enum TaskType {
     TODO("T"),
     DEADLINE("D"),

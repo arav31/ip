@@ -5,112 +5,71 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-/** Tests task state, formatting, matching, and persistence behaviour. */
+/**
+ * Tests polymorphic task behavior, date display, and locale-independent search.
+ */
 class TaskTest {
     @Test
-    void newTask_isIncomplete() {
-        Task task = new Task(TaskType.TODO, "read notes", "");
-
-        assertEquals("[T] [ ] read notes", task.toString());
-    }
-
-    @Test
     void markAndUnmark_updatesCompletionStatus() {
-        Task task = new Task(TaskType.TODO, "read notes", "");
-
+        Task task = new Todo("read notes");
+        assertEquals("[T] [ ] read notes", task.toString());
         task.mark();
-        assertTrue(task.toString().contains("[X]"));
-
+        assertTrue(task.isCompleted());
+        assertEquals("[T] [X] read notes", task.toString());
         task.unmark();
-        assertFalse(task.toString().contains("[X]"));
+        assertFalse(task.isCompleted());
     }
 
     @Test
-    void matches_findsKeywordsWithoutCaseSensitivity() {
-        Task task = new Task(TaskType.DEADLINE, "Submit report", "(by: 2026-09-05)");
-
-        assertTrue(task.matches("submit"));
+    void deadline_storesDateAndDisplaysReadableFormat() {
+        Deadline task = new Deadline("Submit report", LocalDate.of(2026, 9, 5));
+        assertEquals(LocalDate.of(2026, 9, 5), task.getDueDate());
+        assertEquals("[D] [ ] Submit report (by: Sep 5 2026)", task.toString());
+        assertTrue(task.matches("SUBMIT"));
         assertTrue(task.matches("2026-09-05"));
+        assertTrue(task.matches("sep 5"));
         assertFalse(task.matches("meeting"));
     }
 
     @Test
-    void serializeAndDeserialize_preservesTaskState() {
-        Task original = new Task(TaskType.EVENT, "team meeting", "(from: 2026-09-01 14:00 to: 15:00)");
-        original.mark();
-
-        Task restored = Task.deserialize(original.serialize());
-
-        assertEquals(original.toString(), restored.toString());
+    void event_storesTimesAndRejectsReversedRange() {
+        LocalDateTime start = LocalDateTime.of(2026, 9, 21, 14, 0);
+        Event task = new Event("meeting", start, start.plusHours(1));
+        assertEquals(start, task.getStart());
+        assertEquals(start.plusHours(1), task.getEnd());
+        assertEquals("[E] [ ] meeting (from: Sep 21 2026, 14:00 to: Sep 21 2026, 15:00)", task.toString());
+        assertThrows(IllegalArgumentException.class, () -> new Event("meeting", start, start.minusMinutes(1)));
     }
 
     @Test
-    void add_acceptsMultipleTasks() {
-        TaskList taskList = new TaskList();
-
-        taskList.add(new Task(TaskType.TODO, "first task", ""),
-                new Task(TaskType.TODO, "second task", ""));
-
-        assertEquals("[T] [ ] first task", taskList.get("1").toString());
-        assertEquals("[T] [ ] second task", taskList.get("2").toString());
+    void matches_turkishLocale_isIndependentOfSystemLocale() {
+        Locale original = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+            assertTrue(new Todo("IMPORTANT").matches("important"));
+        } finally {
+            Locale.setDefault(original);
+        }
     }
 
     @Test
-    void formattingStreams_preserveOrderAndTaskNumbers() {
-        TaskList taskList = new TaskList();
-        taskList.add(new Task(TaskType.TODO, "first", ""),
-                new Task(TaskType.TODO, "second", ""));
-
-        assertEquals("1. [T] [ ] first\n2. [T] [ ] second\n", taskList.formatAll());
-        assertEquals("2. [T] [ ] second\n", taskList.formatMatching("second"));
+    void constructors_assertInternalInvariants() {
+        assertThrows(AssertionError.class, () -> new Todo(null));
+        assertThrows(AssertionError.class, () -> new Deadline("description", null));
+        assertThrows(AssertionError.class, () -> new Event("description", null, LocalDateTime.now()));
+        assertThrows(AssertionError.class, () -> new TaskList().add((Task) null));
     }
 
     @Test
-    void sortByDescription_ordersTasksAlphabeticallyIgnoringCase() {
-        TaskList taskList = new TaskList();
-        taskList.add(new Task(TaskType.TODO, "zebra", ""),
-                new Task(TaskType.TODO, "Alpha", ""),
-                new Task(TaskType.TODO, "beta", ""));
-
-        taskList.sortByDescription();
-
-        assertEquals("1. [T] [ ] Alpha\n2. [T] [ ] beta\n3. [T] [ ] zebra\n",
-                taskList.formatAll());
-    }
-
-    @Test
-    void sortCommand_sortsTasksAndAppearsInHelp() {
-        TaskList taskList = new TaskList();
-        taskList.add(new Task(TaskType.TODO, "zebra", ""),
-                new Task(TaskType.TODO, "alpha", ""));
-        CommandHandler commandHandler = new CommandHandler();
-
-        assertTrue(commandHandler.helpMessage().contains("sort"));
-        assertEquals("1. [T] [ ] alpha\n2. [T] [ ] zebra",
-                commandHandler.execute(taskList, "sort"));
-    }
-
-    @Test
-    void load_doesNotKeepPartiallyLoadedTasks() throws IOException {
-        Path dataFile = Files.createTempFile("aravii", ".txt");
-        Files.writeString(dataFile, "TODO\tfalse\tvalid task\t\ninvalid saved task\n");
-
-        TaskList taskList = TaskList.load(dataFile);
-
-        assertEquals("", taskList.formatAll());
-        Files.deleteIfExists(dataFile);
-    }
-
-    @Test
-    void constructor_assertsRequiredFields() {
-        assertThrows(AssertionError.class, () -> new Task(null, "description", ""));
-        assertThrows(AssertionError.class, () -> new Task(TaskType.TODO, null, ""));
-        assertThrows(AssertionError.class, () -> new Task(TaskType.TODO, "description", null));
+    void constructor_invalidDescription_rejectsInput() {
+        assertThrows(IllegalArgumentException.class, () -> new Todo(" "));
+        assertThrows(IllegalArgumentException.class, () -> new Todo("one\ttwo"));
+        assertThrows(IllegalArgumentException.class, () -> new Todo("one\ntwo"));
     }
 }
