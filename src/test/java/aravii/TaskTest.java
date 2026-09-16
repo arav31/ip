@@ -72,6 +72,31 @@ class TaskTest {
     }
 
     @Test
+    void sortByDescription_ordersTasksAlphabeticallyIgnoringCase() {
+        TaskList taskList = new TaskList();
+        taskList.add(new Task(TaskType.TODO, "zebra", ""),
+                new Task(TaskType.TODO, "Alpha", ""),
+                new Task(TaskType.TODO, "beta", ""));
+
+        taskList.sortByDescription();
+
+        assertEquals("1. [T] [ ] Alpha\n2. [T] [ ] beta\n3. [T] [ ] zebra\n",
+                taskList.formatAll());
+    }
+
+    @Test
+    void sortCommand_sortsTasksAndAppearsInHelp() {
+        TaskList taskList = new TaskList();
+        taskList.add(new Task(TaskType.TODO, "zebra", ""),
+                new Task(TaskType.TODO, "alpha", ""));
+        CommandHandler commandHandler = new CommandHandler();
+
+        assertTrue(commandHandler.helpMessage().contains("sort"));
+        assertEquals("1. [T] [ ] alpha\n2. [T] [ ] zebra",
+                commandHandler.execute(taskList, "sort"));
+    }
+
+    @Test
     void load_doesNotKeepPartiallyLoadedTasks() throws IOException {
         Path dataFile = Files.createTempFile("aravii", ".txt");
         Files.writeString(dataFile, "TODO\tfalse\tvalid task\t\ninvalid saved task\n");

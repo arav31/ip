@@ -46,6 +46,14 @@ public class Task {
         return searchableText.contains(keyword.toLowerCase());
     }
 
+    /** Returns the task description used for alphabetical sorting.
+     *
+     * @return the task description
+     */
+    public String getDescription() {
+        return description;
+    }
+
     /** Serializes this task for storage in the save file.
      *
      * @return the serialized task

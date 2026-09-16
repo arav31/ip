@@ -22,7 +22,7 @@ public class CommandHandler {
                 + "deadline <description> /by <YYYY-MM-DD>\n"
                 + "event <description> /from <YYYY-MM-DD HH:MM> /to <YYYY-MM-DD HH:MM>\n"
                 + "list\nmark <number>\nunmark <number>\ndelete <number>\n"
-                + "find <keyword>\nhelp\nbye";
+                + "find <keyword>\nsort\nhelp\nbye";
     }
 
     /** Executes a supported command and returns its response.
@@ -35,6 +35,10 @@ public class CommandHandler {
         if (input.equals("help")) {
             return helpMessage();
         } else if (input.equals("list")) {
+            String result = tasks.formatAll();
+            return result.isEmpty() ? "There are no tasks." : result.trim();
+        } else if (input.equals("sort")) {
+            tasks.sortByDescription();
             String result = tasks.formatAll();
             return result.isEmpty() ? "There are no tasks." : result.trim();
         } else if (input.startsWith("find ")) {

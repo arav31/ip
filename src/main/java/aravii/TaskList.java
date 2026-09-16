@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -106,6 +107,11 @@ public class TaskList {
      */
     public void printMatching(String keyword) {
         System.out.print(formatMatching(keyword));
+    }
+
+    /** Sorts tasks alphabetically by description, ignoring letter case. */
+    public void sortByDescription() {
+        tasks.sort(Comparator.comparing(task -> task.getDescription().toLowerCase()));
     }
 
     /** Formats all tasks with one-based numbering.
