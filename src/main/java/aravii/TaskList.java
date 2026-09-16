@@ -1,94 +1,60 @@
 package aravii;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/** Owns the collection of tasks and its persistent storage. */
+/**
+ * Owns an ordered collection of polymorphic tasks, independent of storage and UI.
+ */
 public class TaskList {
     private final List<Task> tasks = new ArrayList<>();
 
-    /** Loads tasks from disk, or creates an empty list when no save exists.
-     *
-     * @param dataFile the file containing the saved tasks
-     * @return the loaded task list
+    /**
+     * Creates an empty task list.
      */
-    public static TaskList load(Path dataFile) {
-        TaskList taskList = new TaskList();
-        if (!Files.exists(dataFile)) {
-            return taskList;
-        }
-
-        try {
-            List<Task> loadedTasks = new ArrayList<>();
-            for (String line : Files.readAllLines(dataFile)) {
-                loadedTasks.add(Task.deserialize(line));
-            }
-            taskList.tasks.addAll(loadedTasks);
-        } catch (IOException | IllegalArgumentException exception) {
-            System.out.println("Error: Could not load saved tasks.");
-        }
-        return taskList;
+    public TaskList() {
     }
 
-    /** Saves all tasks to disk.
+    /**
+     * Adds one or more tasks in the supplied order.
      *
-     * @param dataFile the file in which to save the tasks
-     */
-    public void save(Path dataFile) {
-        List<String> lines = new ArrayList<>();
-        for (Task task : tasks) {
-            lines.add(task.serialize());
-        }
-
-        try {
-            Files.createDirectories(dataFile.getParent());
-            Files.write(dataFile, lines, StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException exception) {
-            System.out.println("Error: Could not save tasks.");
-        }
-    }
-
-    /** Adds one or more tasks to the list.
-     *
-     * @param newTasks the tasks to add
+     * @param newTasks The tasks to add.
      */
     public void add(Task... newTasks) {
+        assert newTasks != null : "Tasks must not be null";
         for (Task task : newTasks) {
             assert task != null : "Task list must not contain null tasks";
-            tasks.add(task);
         }
+        tasks.addAll(List.of(newTasks));
     }
 
-    /** Returns the task selected by a one-based task number.
+    /**
+     * Returns the task selected by a one-based task number.
      *
-     * @param taskNumber the one-based task number
-     * @return the selected task
+     * @param taskNumber The one-based task number.
+     * @return The selected task.
      */
     public Task get(String taskNumber) {
         try {
-            int index = Integer.parseInt(taskNumber) - 1;
-            if (index < 0 || index >= tasks.size()) {
+            int number = Integer.parseInt(taskNumber.strip());
+            if (number < 1 || number > tasks.size()) {
                 throw new IllegalArgumentException("That task number does not exist.");
             }
-            assert tasks.get(index) != null : "Task list must not contain null tasks";
-            return tasks.get(index);
+            assert tasks.get(number - 1) != null : "Task list must not contain null tasks";
+            return tasks.get(number - 1);
         } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException("Please provide a valid task number.");
+            throw new IllegalArgumentException("Please provide a valid task number.", exception);
         }
     }
 
-    /** Removes and returns the task selected by a one-based task number.
+    /**
+     * Removes and returns the task selected by a one-based task number.
      *
-     * @param taskNumber the one-based task number
-     * @return the removed task
+     * @param taskNumber The one-based task number.
+     * @return The removed task.
      */
     public Task remove(String taskNumber) {
         Task task = get(taskNumber);
@@ -96,44 +62,43 @@ public class TaskList {
         return task;
     }
 
-    /** Prints all tasks with one-based numbering. */
-    public void printAll() {
-        System.out.print(formatAll());
-    }
-
-    /** Prints all tasks whose description or details contain the given keyword.
+    /**
+     * Returns a read-only snapshot of the task order for storage.
      *
-     * @param keyword the keyword to search for
+     * @return The tasks in their current order.
      */
-    public void printMatching(String keyword) {
-        System.out.print(formatMatching(keyword));
+    public List<Task> getTasks() {
+        return List.copyOf(tasks);
     }
 
-    /** Sorts tasks alphabetically by description, ignoring letter case. */
+    /**
+     * Sorts tasks stably by description without depending on the system locale.
+     */
     public void sortByDescription() {
-        tasks.sort(Comparator.comparing(task -> task.getDescription().toLowerCase()));
+        tasks.sort(Comparator.comparing(Task::getDescription, String.CASE_INSENSITIVE_ORDER));
     }
 
-    /** Formats all tasks with one-based numbering.
+    /**
+     * Formats all tasks with one-based numbering.
      *
-     * @return the formatted task list
+     * @return The formatted task list.
      */
     public String formatAll() {
-        String output = IntStream.range(0, tasks.size())
-                .mapToObj(index -> (index + 1) + ". " + tasks.get(index))
-                .collect(Collectors.joining("\n"));
-        return output.isEmpty() ? output : output + "\n";
+        return formatIndices(IntStream.range(0, tasks.size()));
     }
 
-    /** Formats tasks whose descriptions or details contain the given keyword.
+    /**
+     * Formats matching tasks while retaining their original list numbers.
      *
-     * @param keyword the keyword to search for
-     * @return the matching tasks
+     * @param keyword The keyword to search for.
+     * @return The matching tasks.
      */
     public String formatMatching(String keyword) {
-        String output = IntStream.range(0, tasks.size())
-                .filter(index -> tasks.get(index).matches(keyword))
-                .mapToObj(index -> (index + 1) + ". " + tasks.get(index))
+        return formatIndices(IntStream.range(0, tasks.size()).filter(index -> tasks.get(index).matches(keyword)));
+    }
+
+    private String formatIndices(IntStream indices) {
+        String output = indices.mapToObj(index -> (index + 1) + ". " + tasks.get(index))
                 .collect(Collectors.joining("\n"));
         return output.isEmpty() ? output : output + "\n";
     }

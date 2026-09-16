@@ -16,6 +16,14 @@
     </module>
 
     <module name="TreeWalker">
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="/\*\*\s+\S"/>
+            <property name="message" value="Put the Javadoc opening on its own line."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="@param\s+\S+\s+.*[^.\s]$"/>
+            <property name="message" value="End single-line parameter descriptions with a period."/>
+        </module>
         <module name="AvoidStarImport"/>
         <module name="CustomImportOrder">
             <property name="customImportOrderRules"
@@ -27,6 +35,12 @@
             <property name="allowedAnnotations" value="Override,Test"/>
         </module>
         <module name="ModifierOrder"/>
+        <module name="JavadocStyle"/>
+        <module name="NeedBraces"/>
+        <module name="TypeName"/>
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*(_[a-z][a-zA-Z0-9]*){0,2}$"/>
+        </module>
         <module name="WhitespaceAround"/>
     </module>
 </module>
