@@ -2,6 +2,7 @@ package aravii;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -79,5 +80,12 @@ class TaskTest {
 
         assertEquals("", taskList.formatAll());
         Files.deleteIfExists(dataFile);
+    }
+
+    @Test
+    void constructor_assertsRequiredFields() {
+        assertThrows(AssertionError.class, () -> new Task(null, "description", ""));
+        assertThrows(AssertionError.class, () -> new Task(TaskType.TODO, null, ""));
+        assertThrows(AssertionError.class, () -> new Task(TaskType.TODO, "description", null));
     }
 }

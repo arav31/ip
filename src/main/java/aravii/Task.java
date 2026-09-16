@@ -18,6 +18,9 @@ public class Task {
      * @param details the deadline or event details, if applicable
      */
     public Task(TaskType type, String description, String details) {
+        assert type != null : "Task type must not be null";
+        assert description != null : "Task description must not be null";
+        assert details != null : "Task details must not be null";
         this.type = type;
         this.description = description;
         this.details = details;
