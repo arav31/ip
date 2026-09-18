@@ -24,9 +24,13 @@ public class TaskList {
      * @param newTasks The tasks to add.
      */
     public void add(Task... newTasks) {
-        assert newTasks != null : "Tasks must not be null";
+        if (newTasks == null) {
+            throw new IllegalArgumentException("Tasks must not be null.");
+        }
         for (Task task : newTasks) {
-            assert task != null : "Task list must not contain null tasks";
+            if (task == null) {
+                throw new IllegalArgumentException("Task list must not contain null tasks.");
+            }
         }
         tasks.addAll(List.of(newTasks));
     }
@@ -38,12 +42,14 @@ public class TaskList {
      * @return The selected task.
      */
     public Task get(String taskNumber) {
+        if (taskNumber == null) {
+            throw new IllegalArgumentException("Please provide a valid task number.");
+        }
         try {
             int number = Integer.parseInt(taskNumber.strip());
             if (number < 1 || number > tasks.size()) {
                 throw new IllegalArgumentException("That task number does not exist.");
             }
-            assert tasks.get(number - 1) != null : "Task list must not contain null tasks";
             return tasks.get(number - 1);
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException("Please provide a valid task number.", exception);

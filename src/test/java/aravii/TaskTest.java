@@ -59,11 +59,11 @@ class TaskTest {
     }
 
     @Test
-    void constructors_assertInternalInvariants() {
-        assertThrows(AssertionError.class, () -> new Todo(null));
-        assertThrows(AssertionError.class, () -> new Deadline("description", null));
-        assertThrows(AssertionError.class, () -> new Event("description", null, LocalDateTime.now()));
-        assertThrows(AssertionError.class, () -> new TaskList().add((Task) null));
+    void constructors_rejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> new Todo(null));
+        assertThrows(IllegalArgumentException.class, () -> new Deadline("description", null));
+        assertThrows(IllegalArgumentException.class, () -> new Event("description", null, LocalDateTime.now()));
+        assertThrows(IllegalArgumentException.class, () -> new TaskList().add((Task) null));
     }
 
     @Test

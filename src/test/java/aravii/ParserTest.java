@@ -21,6 +21,11 @@ class ParserTest {
         assertThrows(IllegalArgumentException.class, () -> Parser.parse(input));
     }
 
+    @Test
+    void parse_nullInput_throwsHelpfulError() {
+        assertThrows(IllegalArgumentException.class, () -> Parser.parse(null));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"deadline /by 2026-09-20", "deadline work /by", "deadline work",
         "deadline work /by 2026-02-30", "deadline work /by 2026-02-29", "deadline work /by 20/09/2026",

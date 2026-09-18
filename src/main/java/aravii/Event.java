@@ -24,8 +24,9 @@ public class Event extends Task {
      */
     public Event(String description, LocalDateTime start, LocalDateTime end) {
         super(description);
-        assert start != null : "Event start must not be null";
-        assert end != null : "Event end must not be null";
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Event start and end must not be null.");
+        }
         if (end.isBefore(start)) {
             throw new IllegalArgumentException("An event must not end before it starts.");
         }

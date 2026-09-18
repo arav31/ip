@@ -42,4 +42,11 @@ class TaskListTest {
         assertThrows(IllegalArgumentException.class, () -> tasks.remove(index));
         assertEquals(1, tasks.getTasks().size());
     }
+
+    @Test
+    void publicMethods_rejectNullArguments() {
+        TaskList tasks = new TaskList();
+        assertThrows(IllegalArgumentException.class, () -> tasks.add((Task[]) null));
+        assertThrows(IllegalArgumentException.class, () -> tasks.get(null));
+    }
 }

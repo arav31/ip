@@ -16,7 +16,9 @@ public abstract class Task {
      * @param description The task description.
      */
     protected Task(String description) {
-        assert description != null : "Task description must not be null";
+        if (description == null) {
+            throw new IllegalArgumentException("The description cannot be null.");
+        }
         Parser.validateText(description);
         if (description.isBlank()) {
             throw new IllegalArgumentException("The description cannot be empty.");

@@ -19,7 +19,9 @@ public class Storage {
      * @param dataFile The save-file path.
      */
     public Storage(Path dataFile) {
-        assert dataFile != null : "Save path must not be null";
+        if (dataFile == null) {
+            throw new IllegalArgumentException("Save path must not be null.");
+        }
         this.dataFile = dataFile.toAbsolutePath();
     }
 
@@ -55,6 +57,9 @@ public class Storage {
      * @throws IOException If the new save cannot be written or replaced safely.
      */
     public void save(TaskList tasks) throws IOException {
+        if (tasks == null) {
+            throw new IllegalArgumentException("Tasks must not be null.");
+        }
         List<String> lines = tasks.getTasks().stream().map(this::encode).toList();
         Files.createDirectories(dataFile.getParent());
         Path temporaryFile = Files.createTempFile(dataFile.getParent(), "aravii-", ".tmp");

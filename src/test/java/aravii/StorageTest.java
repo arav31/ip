@@ -73,4 +73,11 @@ class StorageTest {
             assertEquals(1, children.count());
         }
     }
+
+    @Test
+    void publicMethods_rejectNullArguments() {
+        assertThrows(IllegalArgumentException.class, () -> new Storage(null));
+        assertThrows(IllegalArgumentException.class, () -> new Storage(directory.resolve("tasks.txt"))
+                .save(null));
+    }
 }
