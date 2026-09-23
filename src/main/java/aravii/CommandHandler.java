@@ -46,7 +46,9 @@ public class CommandHandler {
         case "todo", "deadline", "event" -> {
             Task task = Parser.parseTask(command);
             tasks.add(task);
-            yield "Added: " + task;
+            int count = tasks.size();
+            yield "Added: " + task + "\nNow you have " + count
+                    + (count == 1 ? " task" : " tasks") + " in the list.";
         }
         case "mark" -> {
             Task task = tasks.get(command.arguments());

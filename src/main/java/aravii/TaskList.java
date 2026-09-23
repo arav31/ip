@@ -78,6 +78,15 @@ public class TaskList {
     }
 
     /**
+     * Returns the total number of tasks, including completed tasks.
+     *
+     * @return The number of tasks in the list.
+     */
+    public int size() {
+        return tasks.size();
+    }
+
+    /**
      * Sorts tasks stably by description without depending on the system locale.
      */
     public void sortByDescription() {

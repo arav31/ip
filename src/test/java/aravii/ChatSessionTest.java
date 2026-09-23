@@ -14,6 +14,8 @@ import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Exercises the command lifecycle shared by the GUI and text interface.
@@ -21,6 +23,23 @@ import org.junit.jupiter.api.io.TempDir;
 class ChatSessionTest {
     @TempDir
     Path directory;
+
+    @ParameterizedTest
+    @ValueSource(strings = {"deadline /by ", "event /from /to "})
+    void respond_reviewedMalformedCommands_preservesSavedTasksAndRecovers(String input) throws IOException {
+        Path file = directory.resolve("aravii.txt");
+        ChatSession session = new ChatSession(new Storage(file));
+        session.respond("todo keep me");
+        String saved = Files.readString(file);
+        String before = session.respond("list");
+
+        assertTrue(session.respond(input).startsWith("Error:"));
+        assertEquals(before, session.respond("list"));
+        assertEquals(saved, Files.readString(file));
+        assertEquals("Added: [T] [ ] next\nNow you have 2 tasks in the list.", session.respond("todo next"));
+        ChatSession restarted = new ChatSession(new Storage(file));
+        assertEquals("Added: [T] [ ] later\nNow you have 3 tasks in the list.", restarted.respond("todo later"));
+    }
 
     @Test
     void respond_allCommands_preserveChangesAcrossRestart() {

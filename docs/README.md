@@ -110,7 +110,10 @@ an `Added:` response, for example:
 
 ```text
 Added: [D] [ ] submit report (by: Sep 20 2026)
+Now you have 2 tasks in the list.
 ```
+
+The count includes both completed and incomplete tasks already in your list.
 
 ### View and search tasks
 
